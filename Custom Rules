@@ -1,0 +1,111 @@
+<!-- Wazuh Rules for Windows Defender  -->
+<group name="windows_defender">
+
+  <rule id="115000" level="1">
+    <if_sid>91822</if_sid>
+    <field name="win.eventdata.path" type="pcre2">(?i)^C:\\\\ProgramData\\\\Microsoft\\\\Windows Defender Advanced Threat Protection\\\\DataCollection</field>
+    <description>Exclude Windows Defender using Invoke-Command</description>
+    <options>no_full_log</options>
+  </rule>
+
+</group>
+
+<!-- Wazuh Rules for PowerShell  -->
+
+<group name="powershell">
+
+ <rule id="116000" level="1">
+    <if_group>sysmon_event_11</if_group>
+    <field name="win.eventdata.image">^C:\\\\Windows\\\\SysWOW64\\\WindowsPowerShell\\\\v1.0\\\\Powershell.exe$</field>    
+    <field name="win.eventdata.targetFilename">^C:\\\\Windows\\\\Temp\\\\__PSScriptPolicyTest</field> 
+    <description>Exclude AppLocker</description>
+    <options>no_full_log</options>
+    </rule>
+  <rule id="116001" level="12">
+    <if_sid>91802</if_sid>
+    <field name="win.eventdata.scriptBlockText" type="pcre2">(?i)whoami</field>
+    <options>no_full_log</options>
+    <description>Executed Powershell script "whoami" executed.</description>
+    <mitre>
+      <id>T1018</id>
+    </mitre>
+  </rule>
+  <rule id="116002" level="14">
+    <if_sid>91802</if_sid>
+    <field name="win.eventdata.scriptBlockText" type="pcre2">(?i)^findstr \/si password \*.txt \*.ini \*.config</field>
+    <options>no_full_log</options>
+    <description>Executed Powershell Password Enumeration executed.</description>
+    <mitre>
+      <id>T1018</id>
+    </mitre>
+  </rule>
+</group>
+
+<group name="rule_exclusion,">
+      <rule id="100100" level="1">
+    <if_sid>60106</if_sid>
+    <field name="win.eventdata.targetUserName">\$$</field>
+    <description>Exclude Computer Account logons</description>
+    <options>no_full_log</options>
+  </rule>
+    <rule id="100101" level="1">
+    <if_sid>60137</if_sid>
+    <field name="win.eventdata.targetUserName">\$$</field>
+    <description>Exclude Computer Account logouts</description>
+    <options>no_full_log</options>
+  </rule>
+    <rule id="100103" level="1">
+    <if_sid>60107</if_sid>
+    <field name="win.eventdata.privilegeList">^SeTcbPrivilege$</field>
+    <description>Exclude Audit Failure Events SeTcbPrivilege</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100104" level="1">
+   <if_sid>60106</if_sid>
+    <field name="win.eventdata.targetUserName">^scloud_svc</field>
+    <description>Exclude scloud_svc Account logons</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100105" level="1">
+    <if_sid>60106</if_sid>
+    <field name="win.eventdata.targetUserName">^localtaskrunner</field>
+    <description>Exclude localtaskrunner Account logons</description>
+    <options>no_full_log</options>
+  </rule>
+      <rule id="100106" level="1">
+    <if_sid>92032</if_sid>
+    <field name="data.win.eventdata.originalFileName">FIND.EXE</field>
+    <description>Exclude checkmk win_dhcp_pools Alert</description>
+    <options>no_full_log</options>
+  </rule>
+    <rule id="100109" level="1">
+        <if_sid>60104</if_sid>
+        <field name="data.win.eventdata.packageName">^MICROSOFT_AUTHENTICATION_PACKAGE_V1_0$</field>
+        <description>Exclude Audit Failure Events SeTcbPrivilege</description>
+        <options>no_full_log</options>
+  </rule>
+      <rule id="100110" level="1">
+        <if_sid>91820</if_sid>
+        <field name="data.win.eventdata.path">^D:\\F2Consulting\\RepoRoot\\TOOLS\\cbrain_fileutil_2.psm1$</field>
+        <description>Exclude cbrain devops events</description>
+        <options>no_full_log</options>
+  </rule>
+</group>
+
+<group name="false postive">
+    <rule id="100111" level="1">
+        <if_sid>510</if_sid>
+        <field name="decoder.name">^rootcheck</field>
+        <field name="data.file">^/usr/bin/diff</field>
+        <field name="agent.name">^wazuh-1</field>
+        <description>Exclude wazuh-1 rootcheck false positive</description>
+    <options>no_full_log</options>
+  </rule>
+      <rule id="100112" level="1">
+        <if_sid>91823</if_sid>
+        <field name="data.win.eventdata.path">C:\\bin\\Distribute-LetsEncryptCertificate.ps1</field>
+        <field name="agent.name">Hydro</field>        
+        <description>Exclude Distribute-LetsEncryptCertificate.ps1 false positive</description>
+    <options>no_full_log</options>
+  </rule>
+</group>
